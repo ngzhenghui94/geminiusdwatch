@@ -9,7 +9,7 @@ const bot = new TelegramBot(process.env.TOKEN, { polling: true });
 let apiUrl = process.env.APIURL;
 let adminId = process.env.ADMIN;
 let priceThreshold = 0.98;
-
+let sendHeartbeatCounter = 0;
 /**
  * this function is a scheduled job that runs every 60 seconds. It checks the current price of
  * Gemini USD and if it is below the price threshold, it sends a message to the admin.
@@ -24,6 +24,15 @@ const executeScheduler = async () => {
           adminId,
           `Warning Gemini Usd price is below threshold of $${priceThreshold}. Current Price @ $${price}\n24h Low: $${low}`
         );
+      } else if (sendHeartbeatCounter == 120) {
+        // Send heartbeat every 2 hour
+        bot.sendMessage(
+          adminId,
+          `Heartbeat -> ${sendHeartbeatCounter} seconds lapsed.`
+        );
+        sendHeartbeatCounter = 0;
+      } else {
+        sendHeartbeatCounter += 1;
       }
     });
   });
